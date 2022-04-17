@@ -1,6 +1,6 @@
-package com.abiha.springboot.bootcampproject.model;
+package com.abiha.springboot.bootcampproject.entities;
 
-import com.abiha.springboot.bootcampproject.model.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -14,6 +14,7 @@ public class Role implements GrantedAuthority {
     private String name;
 
     @ManyToMany(mappedBy = "roles")
+    @JsonIgnore
     private Set<User> user;
 
 

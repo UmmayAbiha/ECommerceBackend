@@ -1,6 +1,6 @@
 package com.abiha.springboot.bootcampproject.security;
 
-import com.abiha.springboot.bootcampproject.model.User;
+import com.abiha.springboot.bootcampproject.entities.User;
 import com.abiha.springboot.bootcampproject.repos.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +19,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepo.findByEmail(username);
         if(user==null)
             throw new UsernameNotFoundException("User not found for email"+ username);
-        return new org.springframework.security.core.userdetails.User(user.getEmail(),user.getPassword(),user.getRoles());
+       // return new org.springframework.security.core.userdetails.User(user.getEmail(),user.getPassword(),user.getRoles());
+        return user;
 
     }
 }
+
+

@@ -1,53 +1,80 @@
 package com.abiha.springboot.bootcampproject.contollers;
 
-import com.abiha.springboot.bootcampproject.dto.CustomerDto;
-import com.abiha.springboot.bootcampproject.dto.SellerDto;
-import com.abiha.springboot.bootcampproject.model.Customer;
-import com.abiha.springboot.bootcampproject.model.Seller;
-import com.abiha.springboot.bootcampproject.services.CustomerService;
-import com.abiha.springboot.bootcampproject.services.SellerService;
-import org.modelmapper.ModelMapper;
+import com.abiha.springboot.bootcampproject.dto.UserDto;
+import com.abiha.springboot.bootcampproject.entities.Token;
+import com.abiha.springboot.bootcampproject.entities.User;
+import com.abiha.springboot.bootcampproject.repos.TokenRepo;
+import com.abiha.springboot.bootcampproject.repos.UserRepo;
+import com.abiha.springboot.bootcampproject.services.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
+import java.util.Date;
 
 @RestController
 public class RegisterController {
 
     @Autowired
-    private CustomerService customerService;
+    private RegistrationService registrationService;
 
     @Autowired
-    private SellerService sellerService;
+    private UserRepo userRepo;
 
-    @GetMapping("/customers")
-    public List<Customer> getAllCustomers(){
-        return customerService.getCustomersList();
+    @Autowired
+    private TokenRepo tokenRepo;
+
+
+    @PostMapping("/userRegister")
+    public ResponseEntity<Object> userRegistration(@Valid @RequestBody UserDto userDto) {
+
+        if(userRepo.findByEmail(userDto.getEmail())!=null)
+            return new ResponseEntity<>("Duplicate email entered!", HttpStatus.OK);
+
+        return registrationService.registerUser(userDto);
+
     }
 
-    @PostMapping("/customerRegister")
-    public ResponseEntity<Object> customerRegistration(@Valid @RequestBody CustomerDto customerDto)
-    {
+    @PostMapping("/confirm-account")
+    public ResponseEntity<Object> confirmAccount(@RequestParam("token") String confirmationToken) {
+        Token token = tokenRepo.findByActivationToken(confirmationToken);
 
-        Customer customerAdding = customerService.registerCustomer(customerDto);
+        if (token != null) {
 
-        return new ResponseEntity<>("Customer Registered", HttpStatus.CREATED);
+            User user = userRepo.findByEmail(token.getUserEntity().getEmail());
+
+            if(token.getExpiryDate().before(new Date())){
+                registrationService.mailSend(user);
+                tokenRepo.deleteById(token.getTokenid());
+                return new ResponseEntity<>("Account inactive, token has expired.New link sent to your account",HttpStatus.BAD_REQUEST);
+            }
+
+            user.setActive(true);
+            user.setLocked(false);
+            userRepo.save(user);
+
+            tokenRepo.deleteById(token.getTokenid());
+
+            return new ResponseEntity<>("Account Activated Successfully!", HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>("Invalid token!", HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/sellerRegister")
-    public ResponseEntity<Object> sellerRegistration(@Valid @RequestBody SellerDto sellerDto)
-    {
+    @PostMapping("/resent-activation-link")
+    public ResponseEntity<Object> resendLink(@RequestParam("email") String email) {
 
-        Seller sellerAdding = sellerService.registerSeller(sellerDto);
+        User user=userRepo.findByEmail(email);
 
-        return new ResponseEntity<>("Seller Registered", HttpStatus.CREATED);
+            if(user!=null && !user.isActive){
+                registrationService.mailSend(user);
+                return new ResponseEntity<>("Activation link has been sent again",HttpStatus.OK);
+            } else if (user!=null && user.isActive) {
+                return new ResponseEntity<>("Already an active user", HttpStatus.BAD_REQUEST);
+
+            }
+        return new ResponseEntity<>("User Not Found", HttpStatus.BAD_REQUEST);
     }
 
 }

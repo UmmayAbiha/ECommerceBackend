@@ -1,4 +1,6 @@
-package com.abiha.springboot.bootcampproject.model;
+package com.abiha.springboot.bootcampproject.entities;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 
@@ -7,9 +9,11 @@ public class Customer{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userId;
+    private Long userId;
     private String contact;
 
+    @JsonIgnore
+    @MapsId
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
@@ -18,11 +22,11 @@ public class Customer{
         super();
     }
 
-    public Integer getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
@@ -41,4 +45,5 @@ public class Customer{
     public void setUser(User user) {
         this.user = user;
     }
+
 }

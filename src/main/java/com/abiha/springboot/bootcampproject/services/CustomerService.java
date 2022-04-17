@@ -1,25 +1,19 @@
 package com.abiha.springboot.bootcampproject.services;
 
+import com.abiha.springboot.bootcampproject.dto.AddressDto;
 import com.abiha.springboot.bootcampproject.dto.CustomerDto;
-import com.abiha.springboot.bootcampproject.exception.BadRequestException;
-import com.abiha.springboot.bootcampproject.model.Customer;
-import com.abiha.springboot.bootcampproject.model.Role;
-import com.abiha.springboot.bootcampproject.model.Token;
-import com.abiha.springboot.bootcampproject.model.User;
-import com.abiha.springboot.bootcampproject.repos.CustomerRepo;
-import com.abiha.springboot.bootcampproject.repos.RoleRepo;
-import com.abiha.springboot.bootcampproject.repos.TokenRepo;
-import com.abiha.springboot.bootcampproject.repos.UserRepo;
-import org.modelmapper.ModelMapper;
+import com.abiha.springboot.bootcampproject.entities.Address;
+import com.abiha.springboot.bootcampproject.entities.User;
+import com.abiha.springboot.bootcampproject.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.security.core.token.TokenService;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class CustomerService {
@@ -27,129 +21,171 @@ public class CustomerService {
     @Autowired
     private CustomerRepo customerRepo;
 
-   // @Autowired
-   // private TokenService tokenService;
+    @Autowired
+    private UserRepo userRepo;
+
+    @Autowired
+    private AddressRepo addressRepo;
 
     @Autowired
     private EmailService emailService;
 
     @Autowired
-    private UserRepo userRepo;
-
-    @Autowired
-    ModelMapper modelMapper;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private RoleRepo roleRepo;
-
-    @Autowired
-    private TokenRepo tokenRepo;
+    private BCryptPasswordEncoder passwordEncoder;
 
 
+    public ResponseEntity<Object> updateCustomerProfile(CustomerDto customerDto) {
 
-    public List<Customer> getCustomersList(){
-        List<Customer> customers = new ArrayList<>();
-        customerRepo.findAll().forEach(customer -> customers.add(customer));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        return customers;
-    }
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        } else {
 
+            User user = (User) authentication.getPrincipal();
 
-    public Customer registerCustomer(CustomerDto customerDto)
-    {
+            if (customerDto.getFirstName() != null)
+                user.setFirstName(customerDto.getFirstName());
 
-        User user = modelMapper.map(customerDto,User.class);
-        Customer customer = modelMapper.map(customerDto,Customer.class);
-        customer.setUser(user);
+            if (customerDto.getLastName() != null) {
+                user.setLastName(customerDto.getLastName());
+            }
+            if (customerDto.getMiddleName() != null) {
+                user.setMiddleName(customerDto.getMiddleName());
+            }
+            if (customerDto.getContact() != null) {
+                user.getCustomer().setContact(customerDto.getContact());
+            }
 
-
-        if(! customerDto.getPassword().equals(customerDto.getConfirmPassword())){
-            throw new BadRequestException("Passwords not matched");
-        }
-
-        user.setPassword(passwordEncoder.encode(customerDto.getPassword()));
-
-        user.addRole(roleRepo.findByName("role_customer"));
-
-        Token token = new Token(user);
-        tokenRepo.save(token);
-        String message = "Complete your registration!\n" +
-                "Your Token is : "+ token.getActivationToken();
-        emailService.sendSimpleMailMessage(user.getEmail(), "Activating Account",message);
-
-        customerRepo.save(customer);
-        return customer;
-
-        /*
-
-        Token token1 = new Token(user);
-        tokenRepo.save(token1);
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(user.getEmail());
-        mailMessage.setSubject("Complete Registration!");
-        mailMessage.setText("To confirm your account, please click here : "
-                +"http://localhost:8080/confirm-account?token="+ token1.getActivationToken());
-
-
-        emailService.sendSimpleMailMessage(mailMessage);
-
-        customerRepo.save(customer);
-        return customer;
-        */
-    }
-
-////////////// WHY AM I NOT ABLE TO USE TOKEN SERVICE FUNCTIONS HERE!!??? /////////////////
-
-    /*
-
-    public User activateUserByToken(Token token){
-        User user= modelMapper.map(userRepo.findByEmail(token.getUserEmail()),User.class);
-        // validateToken error show kr rha
-        Token validateToken = tokenService.validateToken(token);
-        if (validateToken == null) {
-            throw new BadRequestException("Invalid Token");
-        }else if(user==null){
-            throw new BadRequestException("User with this email doesn't exist");
-        }else{
-            user.setActive(true);
             userRepo.save(user);
+            return new ResponseEntity<>("Profile Updated Successfully!",HttpStatus.OK);
         }
-        return user;
     }
 
-     */
+    public ResponseEntity<Object> updateCustomerPassword(CustomerDto customerDto){
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        } else {
+            User user = (User) authentication.getPrincipal();
 
-
-        /*
-    public User save(UserDto userDto){
-        User user = new User(userDto);
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        Set<Role> roles=roleRepo.findAllById(userDto.getRoles());
-        user.setRoles(roles);
-        userRepo.save(user);
-        return  user;
+            if (customerDto.getPassword().equals(customerDto.getConfirmPassword())) {
+                user.setPassword(passwordEncoder.encode(customerDto.getPassword()));
+                userRepo.save(user);
+                emailService.sendSimpleMailMessage(user.getEmail(),"Password Updated!",
+                        "Hello User, Your password has been updated successfully. Warm regards");
+                return new ResponseEntity<>("Password updated successfully!", HttpStatus.OK);
+            }
+            return new ResponseEntity<>("Password and confirm password not matched!", HttpStatus.BAD_REQUEST);
+        }
     }
 
-    private Collection<? extends GrantedAuthority> getAuthorities(
-            Collection<Role> roles) {
-        List<GrantedAuthority> authorities
-                = new ArrayList<>();
-        for (Role role: roles) {
-            authorities.add(new SimpleGrantedAuthority(role.getAuthority()));
+    public ResponseEntity<Object> viewCustomerAddresses() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated())
+            return null;
+        else {
+            User user = (User) authentication.getPrincipal();
+            Set<Address> addresses = addressRepo.findByUserId(user.getId());
+
+            if (addresses.isEmpty()) {
+                return new ResponseEntity<>("No Address to show!", HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(addresses, HttpStatus.OK);
+        }
+    }
+
+
+    public ResponseEntity<Object> addingCustomerAddress(AddressDto dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated())
+            return null;
+        else {
+            User user = (User) authentication.getPrincipal();
+
+            Address address = new Address();
+
+            address.setAddressLine(dto.getAddressLine());
+            address.setCity(dto.getCity());
+            address.setState(dto.getState());
+            address.setCountry(dto.getCountry());
+            address.setZipCode(dto.getZipCode());
+            address.setLabel(dto.getLabel());
+
+            address.setUser(user);
+
+            user.addAddress(address);
+
+            userRepo.save(user);
+            return new ResponseEntity<>("Address Added Successfully!", HttpStatus.OK);
         }
 
-        return authorities;
     }
 
-     */
+    public ResponseEntity<Object> updateCustomerAddress(Long id, AddressDto dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        if (authentication == null || !authentication.isAuthenticated())
+            return null;
+        else {
+            User user = (User) authentication.getPrincipal();
 
+            Boolean aBoolean = addressRepo.findById(id).isPresent();
 
+            if (aBoolean == true) {
+                Address address = addressRepo.findById(id).get();
+                System.out.println(user.getId());
+                System.out.println(address.getUser().getId());
 
+                if (address.getUser().getId() == user.getId()) {
 
+                    if (dto.getAddressLine() != null)
+                        address.setAddressLine(dto.getAddressLine());
+                    if (dto.getCity() != null)
+                        address.setCity(dto.getCity());
+                    if (dto.getState() != null)
+                        address.setState(dto.getState());
+                    if (dto.getCountry() != null)
+                        address.setCountry(dto.getCountry());
+                    if (dto.getZipCode() != null)
+                        address.setZipCode(dto.getZipCode());
+                    if (dto.getLabel() != null)
+                        address.setLabel(dto.getLabel());
+
+                    Set<Address> addressSet = new HashSet<>();
+                    addressSet.add(address);
+                    user.setAddresses(addressSet);
+                    userRepo.save(user);
+
+                    return new ResponseEntity<>("Address updated Successfully!", HttpStatus.OK);
+                }
+                return new ResponseEntity<>("You entered incorrect Address ID", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>("Address doesn't exist", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public ResponseEntity<Object> deleteCustomerAddress(Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated())
+            return null;
+        else {
+            User user = (User) authentication.getPrincipal();
+
+            Boolean aBoolean = addressRepo.findById(id).isPresent();
+
+            if (aBoolean == true) {
+                Address address = addressRepo.findById(id).get();
+                addressRepo.deleteByAddressId(id);
+                return new ResponseEntity<>("Address deleted successfully!", HttpStatus.OK);
+            }
+            return new ResponseEntity<>("No address is found for the address id!", HttpStatus.NOT_FOUND);
+
+        }
+    }
 }

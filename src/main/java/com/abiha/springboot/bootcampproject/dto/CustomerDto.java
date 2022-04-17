@@ -5,42 +5,32 @@ import lombok.Data;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 @Data
 public class CustomerDto {
 
-    @NotBlank(message = "Email is mandatory field")
     @Email
     private String email;
-    @NotBlank(message = "First name is mandatory")
+
     private String firstName;
     private String middleName;
-    @NotBlank(message = "Last name is mandatory")
     private String lastName;
+    public Boolean isActive;
+
+    @Pattern(regexp = "^(?=.*[0-9])"
+            + "(?=.*[a-z])(?=.*[A-Z])"
+            + "(?=.*[@#$%*!^&+=])"
+            + "(?=\\S+$).{8,16}$",
+            message = "Password should contain atleast 1 uppercase, 1 lowercase, 1 numeric value" +
+                    " and 1 special character")
     @NotBlank(message = "Password is mandatory")
     private String password;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    String confirmPassword;
+    private String confirmPassword;
 
-    private boolean isDeleted;
-    private boolean isActive;
-    private boolean isExpired;
-    private boolean isLocked;
-    private int invalidAttempCount;
-    private String passwordUpdateDate;
-
+    @Pattern(regexp="(^$|[0-9]{10})")
     private String contact;
-
-
-    public CustomerDto(){
-        this.setDeleted(Boolean.FALSE);
-        this.setExpired(false);
-        this.setLocked(true);
-        this.setInvalidAttempCount(0);
-        this.setPasswordUpdateDate("today");
-        this.setActive(false);
-    }
-
 
 }

@@ -1,4 +1,6 @@
-package com.abiha.springboot.bootcampproject.model;
+package com.abiha.springboot.bootcampproject.entities;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 
@@ -7,7 +9,7 @@ public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private String city;
     private String state;
@@ -17,16 +19,15 @@ public class Address {
     private String label;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    //user dto
-
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

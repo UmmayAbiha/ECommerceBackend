@@ -1,29 +1,33 @@
-package com.abiha.springboot.bootcampproject.model;
+package com.abiha.springboot.bootcampproject.entities;
 
-// kuch sql query ka remaining
-
-import com.abiha.springboot.bootcampproject.dto.CustomerDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-public class User {
+@Component
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private String firstName;
     private String middleName;
     private String lastName;
 
+    @Column(unique = true)
     private String email;
     private String password;
     private Boolean isDeleted;
-    private Boolean isActive;
+    public Boolean isActive;
     private Boolean isExpired;
     private Boolean isLocked;
     private Integer invalidAttemptCount;
@@ -33,19 +37,24 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Address> addresses;
 
-    @OneToOne(cascade= CascadeType.ALL)
-    @JoinColumn(name = "customer_id")
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "user",cascade= CascadeType.ALL)
     private Customer customer;
 
-    @OneToOne(cascade= CascadeType.ALL)
-    @JoinColumn(name = "seller_id")
+    @JsonIgnore
+    @OneToOne(mappedBy = "user",cascade= CascadeType.ALL)
     private Seller seller;
 
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id",referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id",referencedColumnName = "id"))
-    private Set<com.abiha.springboot.bootcampproject.model.Role> roles;
+    private Set<com.abiha.springboot.bootcampproject.entities.Role> roles;
+
+    @Transient
+    public String resetPasswordToken;
 
 
     public Set<Address> getAddresses() {
@@ -57,19 +66,19 @@ public class User {
     }
 
 
-    public Set<com.abiha.springboot.bootcampproject.model.Role> getRoles() {
+    public Set<com.abiha.springboot.bootcampproject.entities.Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<com.abiha.springboot.bootcampproject.model.Role> roles) {
+    public void setRoles(Set<com.abiha.springboot.bootcampproject.entities.Role> roles) {
         this.roles = roles;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -95,6 +104,11 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles;
     }
 
     public String getPassword() {
@@ -161,6 +175,39 @@ public class User {
         this.passwordUpdateDate = passwordUpdateDate;
     }
 
+    public String getResetPasswordToken() {
+        return resetPasswordToken;
+    }
+
+
+    public void setResetPasswordToken(String resetPasswordToken) {
+        this.resetPasswordToken = resetPasswordToken;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return !isDeleted;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !isLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return !isExpired;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return isActive;
+    }
 
     public void addRole(Role role){
         if(role!=null){
@@ -189,5 +236,22 @@ public class User {
             addresses.add(address);
         }
     }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Seller getSeller() {
+        return seller;
+    }
+
+    public void setSeller(Seller seller) {
+        this.seller = seller;
+    }
+
 
 }
