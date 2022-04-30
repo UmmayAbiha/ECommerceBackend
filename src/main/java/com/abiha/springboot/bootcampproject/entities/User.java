@@ -56,6 +56,15 @@ public class User implements UserDetails {
     @Transient
     public String resetPasswordToken;
 
+    public User() {
+    }
+
+    public User(String firstName, String middleName, String lastName, String email) {
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.email = email;
+    }
 
     public Set<Address> getAddresses() {
         return addresses;
