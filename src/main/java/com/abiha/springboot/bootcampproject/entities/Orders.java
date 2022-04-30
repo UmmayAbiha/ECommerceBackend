@@ -13,8 +13,10 @@ public class Orders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Double amountPaid;
-//    @Temporal(TemporalType.DATE)
+
+    @Temporal(TemporalType.DATE)
     private Date dateCreated;
+
     private String paymentMethod;
 
     private String customerAddressCity;

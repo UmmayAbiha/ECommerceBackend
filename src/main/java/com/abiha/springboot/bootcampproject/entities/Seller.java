@@ -26,6 +26,16 @@ public class Seller {
 
     private String companyContact;
 
+    public Seller() {
+    }
+
+    public Seller(User user, String gst, String companyName, String companyContact) {
+        this.user = user;
+        this.gst = gst;
+        this.companyName = companyName;
+        this.companyContact = companyContact;
+    }
+
     public Long getId() {
         return id;
     }

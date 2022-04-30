@@ -1,9 +1,6 @@
 package com.abiha.springboot.bootcampproject.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class ProductVariation {
@@ -11,6 +8,10 @@ public class ProductVariation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
     private int quantityAvailable;
 
@@ -61,4 +62,19 @@ public class ProductVariation {
         this.primaryImageName = primaryImageName;
     }
 
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
 }

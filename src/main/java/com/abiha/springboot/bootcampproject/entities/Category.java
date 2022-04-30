@@ -3,6 +3,8 @@ package com.abiha.springboot.bootcampproject.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 @Entity
 public class Category
@@ -12,15 +14,30 @@ public class Category
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String categoryName;
+    @NotNull
+    @Column(unique = true)
+    private String name;
+
+    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Product> products;
 
     @ManyToOne
-    @JoinColumn(name="parentCategoryId",referencedColumnName = "id")
+    @JoinColumn(name="parentCategory",referencedColumnName = "id")
     @JsonIgnore
-    private Category category;
+    private Category leafCategory;  //child category
+
+    //YE SAMAJHNA H
+    @ManyToOne
+    @JoinColumn(name = "parentId")
+    private Category parentCategory;
+
 
     public Category() {
     }
+
+    public Category(String name) {
+        this.name = name;    }
 
     public Long getId() {
         return id;
@@ -30,19 +47,35 @@ public class Category
         this.id = id;
     }
 
-    public String getCategoryName() {
-        return categoryName;
+    public String getName() {
+        return name;
     }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public com.abiha.springboot.bootcampproject.entities.Category getCategory() {
-        return category;
+    public Category getLeafCategory() {
+        return leafCategory;
     }
 
-    public void setCategory(com.abiha.springboot.bootcampproject.entities.Category category) {
-        this.category = category;
+    public void setLeafCategory(Category leafCategory) {
+        this.leafCategory = leafCategory;
+    }
+
+    public Category getParentCategory() {
+        return parentCategory;
+    }
+
+    public void setParentCategory(Category parentCategory) {
+        this.parentCategory = parentCategory;
+    }
+
+    public Set<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
     }
 }

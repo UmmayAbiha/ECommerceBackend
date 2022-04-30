@@ -1,6 +1,7 @@
 package com.abiha.springboot.bootcampproject.entities;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 public class CategoryMetadataField {
@@ -9,6 +10,8 @@ public class CategoryMetadataField {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
+    @Column(unique = true)
     private String name;
 
     public CategoryMetadataField() {

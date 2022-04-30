@@ -34,6 +34,22 @@ public class User implements UserDetails {
     private Date passwordUpdateDate;
 
 
+
+
+    public User() {
+    }
+
+    public User(String firstName, String middleName, String lastName, String email) {
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.email = email;
+    }
+
+
+
+
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Address> addresses;
 
@@ -220,7 +236,7 @@ public class User implements UserDetails {
 
     public boolean hasRole(Role role){
         for(Role rol:roles){
-            if(rol.getName().equals(role.getName())){
+            if(rol.getAuthority().equals(role.getAuthority())){
                 return true;
             }
         }

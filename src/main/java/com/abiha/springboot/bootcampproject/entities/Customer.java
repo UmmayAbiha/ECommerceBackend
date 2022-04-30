@@ -22,6 +22,11 @@ public class Customer{
         super();
     }
 
+    public Customer(String contact, User user) {
+        this.contact = contact;
+        this.user = user;
+    }
+
     public Long getUserId() {
         return userId;
     }

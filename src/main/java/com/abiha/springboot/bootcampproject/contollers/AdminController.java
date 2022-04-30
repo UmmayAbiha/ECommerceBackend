@@ -50,6 +50,7 @@ public class AdminController {
             System.out.println("Not found");
             return new ResponseEntity<>("User doesn't exist", HttpStatus.NOT_FOUND);
         }
+
         else if(customer.isActive){
             System.out.println("Found");
             return new ResponseEntity<>("Already in activated state",HttpStatus.OK);
@@ -64,22 +65,21 @@ public class AdminController {
 
     //@Transactional
     @PatchMapping(value = "/deactivateUser/{id}")
-    public ResponseEntity<Object> deactivateUser(@PathVariable("id") Long id){
-        System.out.println("ID: "+id);
-        User customer=userRepo.findById(id).get();
-        if(customer==null){
+    public ResponseEntity<Object> deactivateUser(@PathVariable("id") Long id) {
+        System.out.println("ID: " + id);
+        User customer = userRepo.findById(id).get();
+        if (customer == null) {
             System.out.println("Not found");
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
+        else if (id==1)
+            return new ResponseEntity("You Don't Deactivate the Main admin user !!!! ", HttpStatus.OK);
         else if(customer.isActive){
             adminService.deActivate(customer);
-
             return new ResponseEntity<>("Account is de-activated", HttpStatus.OK);
-
         }
         else {
             return new ResponseEntity<>(" Your account was already de-activated", HttpStatus.OK);
-
         }
     }
 

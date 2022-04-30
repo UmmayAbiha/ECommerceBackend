@@ -3,6 +3,8 @@ package com.abiha.springboot.bootcampproject.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -16,15 +18,15 @@ public class Product {
 
     private String description;
 
-    private Boolean isCancellable;
+    private Boolean isCancellable= false;
 
-    private Boolean isReturnable;
+    private Boolean isReturnable=false;
 
     private String brand;
 
-    private Boolean isActive;
+    private Boolean isActive=false;
 
-    private Boolean isDeleted;
+    private Boolean isDeleted=false;
 
     @JsonIgnore
     @ManyToOne(fetch= FetchType.LAZY)
@@ -32,17 +34,25 @@ public class Product {
     private Seller seller;
 
     @JsonIgnore
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "categoryId",referencedColumnName = "id")
     private Category category;
 
     @JsonIgnore
-    @OneToMany
-    @JoinColumn(name="productId",referencedColumnName = "id")
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
     private Set<ProductVariation> productVariations;
 
 
+
     public Product() {
+    }
+
+    public Product(String productName, String description,String brand, boolean isCancellable, boolean isReturnable) {
+        this.name = productName;
+        this.description = description;
+        this.brand = brand;
+        this.isCancellable = isCancellable;
+        this.isReturnable = isReturnable;
     }
 
     public Long getId() {
@@ -131,5 +141,37 @@ public class Product {
 
     public void setSeller(Seller seller) {
         this.seller = seller;
+    }
+
+    public Boolean getCancellable() {
+        return isCancellable;
+    }
+
+    public void setCancellable(Boolean cancellable) {
+        isCancellable = cancellable;
+    }
+
+    public Boolean getReturnable() {
+        return isReturnable;
+    }
+
+    public void setReturnable(Boolean returnable) {
+        isReturnable = returnable;
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
+    public Boolean getDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        isDeleted = deleted;
     }
 }

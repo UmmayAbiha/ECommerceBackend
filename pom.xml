@@ -72,6 +72,14 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+<!-- am i suppose to add it or not??-->
+		<!-- this dependency is a part of spring cloud that's why we added dependency management section
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-oauth2</artifactId>
+		</dependency>
+		-->
+
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -93,5 +101,20 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<!-- am i suppose to add it or not?? -->
+	<!--
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Hoxton.SR1</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	-->
 
 </project>
