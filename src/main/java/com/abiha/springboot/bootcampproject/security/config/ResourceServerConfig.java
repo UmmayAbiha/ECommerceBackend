@@ -38,6 +38,12 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
                 mvcMatchers(HttpMethod.GET,"/customers","/sellers").hasRole("ADMIN").
 
+                // --> check krwana hai
+                mvcMatchers(HttpMethod.POST, "/cart/add-product/{id}").hasRole("CUSTOMER").
+                mvcMatchers(HttpMethod.GET,"/viewCart").permitAll().
+                mvcMatchers(HttpMethod.DELETE,"/deleteProduct/{id}","/emptyCart").permitAll().
+                mvcMatchers(HttpMethod.PATCH,"updateProduct/{id}").permitAll().
+
                 mvcMatchers("/confirm-account","/login","/resent-activation-link","/reset-password").permitAll().and().csrf().disable().logout().logoutSuccessUrl("/logout/successfully");
     }
 }

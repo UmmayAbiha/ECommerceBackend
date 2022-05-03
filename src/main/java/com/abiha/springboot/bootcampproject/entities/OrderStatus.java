@@ -3,10 +3,15 @@ package com.abiha.springboot.bootcampproject.entities;
 
 import com.abiha.springboot.bootcampproject.enums.Status;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderStatus {
 
     @Id
@@ -26,45 +31,6 @@ public class OrderStatus {
 
     private String transitionNotesComments;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public OrderProduct getOrderProduct() {
-        return orderProduct;
-    }
-
-    public void setOrderProduct(OrderProduct orderProduct) {
-        this.orderProduct = orderProduct;
-    }
-
-    public Status getFromStatus() {
-        return fromStatus;
-    }
-
-    public void setFromStatus(Status fromStatus) {
-        this.fromStatus = fromStatus;
-    }
-
-    public Status getToStatus() {
-        return toStatus;
-    }
-
-    public void setToStatus(Status toStatus) {
-        this.toStatus = toStatus;
-    }
-
-    public String getTransitionNotesComments() {
-        return transitionNotesComments;
-    }
-
-    public void setTransitionNotesComments(String transitionNotesComments) {
-        this.transitionNotesComments = transitionNotesComments;
-    }
 }
 
 

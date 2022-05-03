@@ -1,24 +1,24 @@
-/*package com.abiha.springboot.bootcampproject.services;
+package com.abiha.springboot.bootcampproject.services;
 
+import com.abiha.springboot.bootcampproject.dto.CartDto;
 import com.abiha.springboot.bootcampproject.entities.Cart;
 import com.abiha.springboot.bootcampproject.entities.Product;
 import com.abiha.springboot.bootcampproject.entities.ProductVariation;
 import com.abiha.springboot.bootcampproject.entities.User;
+import com.abiha.springboot.bootcampproject.exception.ProductNotFoundException;
+import com.abiha.springboot.bootcampproject.exception.ProductOutOfStockException;
+import com.abiha.springboot.bootcampproject.exception.ProductVariationNotFoundException;
 import com.abiha.springboot.bootcampproject.exception.UserNotFoundException;
 import com.abiha.springboot.bootcampproject.repos.CartRepo;
 import com.abiha.springboot.bootcampproject.repos.ProductVariationRepo;
 import com.abiha.springboot.bootcampproject.repos.UserRepo;
 import com.abiha.springboot.bootcampproject.utils.SecurityContextHolderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CartService {
@@ -33,61 +33,145 @@ public class CartService {
     ProductVariationRepo productVariationRepo;
 
 
-    public String addProductInCart(Long productVarId,int quantity){
+    public String addProduct(Long productVarId, int quantity) {
 
         String email = SecurityContextHolderUtil.getCurrentUserEmail();
         User user = userRepo.findByEmail(email);
 
-        if(user == null){
-            throw new UserNotFoundException("Not Found");
+        if (user == null) {
+            throw new UserNotFoundException("User Not Found");
         }
-
-        /// confuseddd
-        else{
+        else {
             Cart cart = new Cart();
-          ProductVariation productVariation = productVariationRepo.findById(productVarId).get();
-            if(productVariation.getIsActive()==true && quantity>0 && productVariation.getProduct().getIsDeleted()==false){
-                Product product = productVariation.getProduct();
-
-                cartRepo.save(product);
-                return "Product added to cart";
-            }
-            else {
-                throw new ValidationException("Validation failed");
+            ProductVariation productVariation = productVariationRepo.findById(productVarId).orElse(null);
+            if (productVariation!=null) {
+                if (productVariation.getIsActive() && quantity>0 && !productVariation.getProduct().getIsDeleted()) {
+                    Product product = productVariation.getProduct();
+                    cart.setCustomer(user.getCustomer());
+                    cart.setQuantity(quantity);
+                    cart.setProductVariation(productVariation);
+                    cartRepo.save(cart);
+                }
+                else{
+                    StringBuilder str = new StringBuilder();
+                    if(!productVariation.getIsActive()){
+                        str.append("Product Variation not active\n");
+                    }
+                    if(quantity<=0){
+                        str.append("Quantity should be greater than zero!\n");
+                    }
+                    if(productVariation.getProduct().getIsDeleted()){
+                        str.append("Deleted Product!");
+                    }
+                    throw new ValidationException(String.valueOf(str));
+                }
+            } else {
+                throw new ProductVariationNotFoundException("Product Variation Not Found");
             }
         }
+        return "Product added to cart";
     }
 
 
-    public List<Cart> viewingCart(){
-
+    public List<CartDto> viewingCart(){
         String email = SecurityContextHolderUtil.getCurrentUserEmail();
         User user = userRepo.findByEmail(email);
 
         if(user == null){
-            throw new UserNotFoundException("Not Found");
+            throw new UserNotFoundException("User Not Found");
         }
         List<Cart> cartList = cartRepo.findAllProducts();
-        return cartList;
+        List<CartDto> list = new ArrayList<>();
+        CartDto cartDto = new CartDto();
+        for (Cart cart:cartList ){
+            if(cart.getProductVariation().getQuantityAvailable()==0)
+                cartDto.setOutOfStock(true);
+            else {
+                cartDto.setOutOfStock(false);
+            }
+            cartDto.setCart(cart);
+            list.add(cartDto);
+        }
+        return list;
     }
 
 
-    public ResponseEntity<Object> deleteCartProduct(Long id) {
+    public String deleteProduct(Long id) {
 
         String email = SecurityContextHolderUtil.getCurrentUserEmail();
         User user = userRepo.findByEmail(email);
 
+        if (user == null) {
+            throw new UserNotFoundException("User Not Found");
+        } else {
+            ProductVariation productVariation = productVariationRepo.findById(id).orElse(null);
+            if (productVariation != null) {
+                if (cartRepo.findByProductVariationId(id)!=null) {
+                    cartRepo.deleteByProductVariationId(id);
+                    return "Product deleted from cart!";
+                } else
+                    throw new ProductNotFoundException("Product for this id is not found");
+            } else {
+                throw new ProductVariationNotFoundException("Product variation not found!");
+            }
+        }
+    }
+
+
+
+    // update query??
+    //org.springframework.orm.jpa.JpaSystemException: No part of a composite identifier may be null
+    //org.hibernate.HibernateException: No part of a composite identifier may be null
+    public void updateProduct(Long id, int quan) {
+        String email = SecurityContextHolderUtil.getCurrentUserEmail();
+        User user = userRepo.findByEmail(email);
+        if (user == null) {
+            throw new UserNotFoundException("User Not Found");
+        } else {
+            Cart cart = new Cart();
+            ProductVariation productVariation = productVariationRepo.findById(id).orElse(null);
+            if (productVariation != null) {
+                if (productVariation.getIsActive() && !productVariation.getProduct().getIsDeleted() && quan >= 0 && cartRepo.findByProductVariationId(id)!=null) {
+                    cart.setQuantity(quan);
+                    // yaha pe baaki fields ka kya??
+                    //hme toh sirf ye update krna tha
+                    cartRepo.save(cart);
+                } else {
+                    StringBuilder str = new StringBuilder();
+                    if (!productVariation.getIsActive()) {
+                        str.append("Product Variation not active\n");
+                    }
+                    if (quan == 0) {
+                        str.append("Product removed from cart!\n");
+                        cartRepo.deleteByProductVariationId(id);
+                        //
+                    }
+                    if (productVariation.getProduct().getIsDeleted()) {
+                        str.append("Product is a deleted product!");
+                    }
+                    if(cartRepo.findByProductVariationId(id) == null){
+                        str.append("Product doesn't exists in user's cart!");
+                    }
+                    throw new ValidationException(String.valueOf(str));
+                }
+            } else {
+                throw new ProductVariationNotFoundException("Product Variation Not Found");
+            }
+        }
+    }
+
+
+    public String emptyCart(){
+        String email = SecurityContextHolderUtil.getCurrentUserEmail();
+        User user = userRepo.findByEmail(email);
         if(user == null){
-            throw new UserNotFoundException("Not Found");
+            throw new UserNotFoundException("User Not Found");
         }
-        if(cartRepo.findById(id).isPresent()){
-            Cart cart= cartRepo.findById(id).get();
-            cartRepo.deleteById(id);
-            return new ResponseEntity<>("Product deleted from cart",HttpStatus.OK);
+        else {
+            cartRepo.deleteAll();
+            return "Cart Emptied!";
         }
-        else
-            return new ResponseEntity<>("Product for this id is not present",HttpStatus.BAD_REQUEST);
     }
 }
 
- */
+

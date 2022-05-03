@@ -1,16 +1,18 @@
 
-/*package com.abiha.springboot.bootcampproject.entities;
+package com.abiha.springboot.bootcampproject.entities;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
-public class CartPK {
+public class CartPK implements Serializable {
 
-    private Customer customerUser;
+    private Long customer;
 
     private Long productVariation;
 }
 
- */
+

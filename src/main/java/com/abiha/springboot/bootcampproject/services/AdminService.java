@@ -85,8 +85,8 @@ public class AdminService {
     }
 
     public User activate(User user) {
-        user.setActive(true);
-        user.setLocked(false);
+        user.setIsActive(true);
+        user.setIsLocked(false);
         userRepo.save(user);
         String message = "Congratulations!!\nYour account is being activated. We hope you enjoy our service";
 
@@ -96,7 +96,7 @@ public class AdminService {
 
 
     public User deActivate(User user) {
-        user.setActive(false);
+        user.setIsActive(false);
         userRepo.save(user);
         String message = "Your account is De-Activated :( \nFeel free to connect if you want to activate you account.";
 

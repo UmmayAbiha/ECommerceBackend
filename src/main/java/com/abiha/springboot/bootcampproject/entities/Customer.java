@@ -1,11 +1,17 @@
 package com.abiha.springboot.bootcampproject.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
-public class Customer{
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Customer implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,36 +24,8 @@ public class Customer{
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Customer() {
-        super();
-    }
-
     public Customer(String contact, User user) {
         this.contact = contact;
-        this.user = user;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getContact() {
-        return contact;
-    }
-
-    public void setContact(String contact) {
-        this.contact = contact;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
         this.user = user;
     }
 

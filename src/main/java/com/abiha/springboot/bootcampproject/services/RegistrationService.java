@@ -70,10 +70,10 @@ public class RegistrationService {
             newCustomer.setUser(newUser);
             newUser.setCustomer(newCustomer);
 
-            newUser.setActive(Boolean.FALSE);
-            newUser.setExpired(Boolean.FALSE);
-            newUser.setLocked(Boolean.FALSE);
-            newUser.setDeleted(Boolean.FALSE);
+            newUser.setIsActive(Boolean.FALSE);
+            newUser.setIsExpired(Boolean.FALSE);
+            newUser.setIsLocked(Boolean.FALSE);
+            newUser.setIsDeleted(Boolean.FALSE);
             newUser.setInvalidAttemptCount(0);
             newUser.setPasswordUpdateDate(new Date());
 
@@ -118,10 +118,10 @@ public class RegistrationService {
 
             newUser.setAddresses(addresses);
 
-            newUser.setActive(Boolean.FALSE);
-            newUser.setExpired(Boolean.FALSE);
-            newUser.setLocked(Boolean.FALSE);
-            newUser.setDeleted(Boolean.FALSE);
+            newUser.setIsActive(Boolean.FALSE);
+            newUser.setIsExpired(Boolean.FALSE);
+            newUser.setIsLocked(Boolean.FALSE);
+            newUser.setIsDeleted(Boolean.FALSE);
             newUser.setInvalidAttemptCount(0);
             newUser.setPasswordUpdateDate(new Date());
 

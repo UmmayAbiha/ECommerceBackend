@@ -2,11 +2,16 @@
 package com.abiha.springboot.bootcampproject.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Orders {
 
     @Id
@@ -31,85 +36,6 @@ public class Orders {
     @JoinColumn(name = "customer_user_id",referencedColumnName = "user_id",nullable = false)
     private Customer customer;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Double getAmountPaid() {
-        return amountPaid;
-    }
-
-    public void setAmountPaid(Double amountPaid) {
-        this.amountPaid = amountPaid;
-    }
-
-    public Date getDateCreated() {
-        return dateCreated;
-    }
-
-    public void setDateCreated(Date dateCreated) {
-        this.dateCreated = dateCreated;
-    }
-
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
-    public String getCustomerAddressCity() {
-        return customerAddressCity;
-    }
-
-    public void setCustomerAddressCity(String customerAddressCity) {
-        this.customerAddressCity = customerAddressCity;
-    }
-
-    public String getCustomerAddressState() {
-        return customerAddressState;
-    }
-
-    public void setCustomerAddressState(String customerAddressState) {
-        this.customerAddressState = customerAddressState;
-    }
-
-    public String getCustomerAddressCountry() {
-        return customerAddressCountry;
-    }
-
-    public void setCustomerAddressCountry(String customerAddressCountry) {
-        this.customerAddressCountry = customerAddressCountry;
-    }
-
-    public String getCustomerAddressAddressLine() {
-        return customerAddressAddressLine;
-    }
-
-    public void setCustomerAddressAddressLine(String customerAddressAddressLine) {
-        this.customerAddressAddressLine = customerAddressAddressLine;
-    }
-
-    public String getCustomerAddressZipCode() {
-        return customerAddressZipCode;
-    }
-
-    public void setCustomerAddressZipCode(String customerAddressZipCode) {
-        this.customerAddressZipCode = customerAddressZipCode;
-    }
-
-    public String getCustomerAddressLabel() {
-        return customerAddressLabel;
-    }
-
-    public void setCustomerAddressLabel(String customerAddressLabel) {
-        this.customerAddressLabel = customerAddressLabel;
-    }
 }
 
 

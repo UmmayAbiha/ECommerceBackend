@@ -51,8 +51,8 @@ public class RegisterController {
                 return new ResponseEntity<>("Account inactive, token has expired.New link sent to your account",HttpStatus.BAD_REQUEST);
             }
 
-            user.setActive(true);
-            user.setLocked(false);
+            user.setIsActive(true);
+            user.setIsLocked(false);
             userRepo.save(user);
 
             tokenRepo.deleteById(token.getTokenid());

@@ -1,9 +1,17 @@
 package com.abiha.springboot.bootcampproject.entities;
 
-import javax.persistence.*;
+import lombok.*;
 
+import javax.persistence.*;
+import java.io.Serializable;
+
+// meta data left
 @Entity
-public class ProductVariation {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductVariation implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,64 +25,10 @@ public class ProductVariation {
 
     private float price;
 
-    private Boolean isActive;
+    private Boolean isActive = true;
+
+    private String metadata;
 
     private String primaryImageName;
 
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getQuantityAvailable() {
-        return quantityAvailable;
-    }
-
-    public void setQuantityAvailable(int quantityAvailable) {
-        this.quantityAvailable = quantityAvailable;
-    }
-
-    public float getPrice() {
-        return price;
-    }
-
-    public void setPrice(float price) {
-        this.price = price;
-    }
-
-    public Boolean getIsActive() {
-        return isActive;
-    }
-
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
-    }
-
-    public String getPrimaryImageName() {
-        return primaryImageName;
-    }
-
-    public void setPrimaryImageName(String primaryImageName) {
-        this.primaryImageName = primaryImageName;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public Boolean getActive() {
-        return isActive;
-    }
-
-    public void setActive(Boolean active) {
-        isActive = active;
-    }
 }

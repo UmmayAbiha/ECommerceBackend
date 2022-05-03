@@ -1,5 +1,7 @@
 package com.abiha.springboot.bootcampproject.entities;
 
+import lombok.Data;
+
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,6 +20,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
+@Data
 public class Token {
 
     @Id
@@ -51,46 +54,4 @@ public class Token {
         expiryDate = new Date(calendar.getTime().getTime());
         activationToken = UUID.randomUUID().toString();
     }
-
-    public long getTokenid() {
-        return tokenid;
-    }
-
-    public void setTokenid(long tokenid) {
-        this.tokenid = tokenid;
-    }
-
-    public Date getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public User getUserEntity() {
-        return userEntity;
-    }
-
-    public void setUserEntity(User userEntity) {
-        this.userEntity = userEntity;
-    }
-
-    public String getActivationToken() {
-        return activationToken;
-    }
-
-
-    public void setActivationToken(String activationToken) {
-        this.activationToken = activationToken;
-    }
-
-    public Date getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
 }

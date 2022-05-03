@@ -1,13 +1,17 @@
 package com.abiha.springboot.bootcampproject.entities;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @IdClass(CategoryMetadataFieldValuesPK.class)
-public class CategoryMetadataFieldValues {
+public class CategoryMetadataFieldValues implements Serializable {
 
     @Id
     @ManyToOne
@@ -20,3 +24,4 @@ public class CategoryMetadataFieldValues {
     private String categoryValues;
 
 }
+

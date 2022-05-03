@@ -36,6 +36,50 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
 
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    public final ResponseEntity<Object> handleBadRequestException(BadRequestException ex , WebRequest request){
+
+        ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
+
+        return new ResponseEntity(exceptionResponse , HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ProductVariationNotFoundException.class)
+    public final ResponseEntity<Object> handleProductVariationNotFoundException(ProductVariationNotFoundException ex , WebRequest request){
+
+        ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
+
+        return new ResponseEntity(exceptionResponse , HttpStatus.NOT_FOUND);
+
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    public final ResponseEntity<Object> handleProductNotFoundException(ProductNotFoundException ex , WebRequest request){
+
+        ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
+
+        return new ResponseEntity(exceptionResponse , HttpStatus.NOT_FOUND);
+
+    }
+
+    @ExceptionHandler(ValidationFailedException.class)
+    public final ResponseEntity<Object> handleValidationFailedException(ValidationFailedException ex , WebRequest request){
+
+        ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
+
+        return new ResponseEntity(exceptionResponse , HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ProductOutOfStockException.class)
+    public final ResponseEntity<Object> handleProductOutOfStockException(ProductOutOfStockException ex , WebRequest request){
+
+        ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
+
+        return new ResponseEntity(exceptionResponse , HttpStatus.NOT_FOUND);
+
+    }
+
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers,HttpStatus status , WebRequest request){

@@ -1,13 +1,17 @@
 package com.abiha.springboot.bootcampproject.entities;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @IdClass(ProductReviewPK.class)
-public class ProductReview {
+public class ProductReview implements Serializable {
 
     private String reviews;
 
@@ -15,7 +19,7 @@ public class ProductReview {
 
 
     @Id
-    @OneToOne
+    @ManyToOne
     private Customer customer;
 
     @Id

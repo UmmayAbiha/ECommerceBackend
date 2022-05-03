@@ -1,11 +1,17 @@
 package com.abiha.springboot.bootcampproject.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
-public class Seller {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Seller implements Serializable {
 
     @Id
     @Column(name = "user_id")
@@ -26,53 +32,11 @@ public class Seller {
 
     private String companyContact;
 
-    public Seller() {
-    }
 
     public Seller(User user, String gst, String companyName, String companyContact) {
         this.user = user;
         this.gst = gst;
         this.companyName = companyName;
-        this.companyContact = companyContact;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id){
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getGst() {
-        return gst;
-    }
-
-    public void setGst(String gst) {
-        this.gst = gst;
-    }
-
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
-
-    public String getCompanyContact() {
-        return companyContact;
-    }
-
-    public void setCompanyContact(String companyContact) {
         this.companyContact = companyContact;
     }
 }

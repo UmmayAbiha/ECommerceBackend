@@ -1,30 +1,36 @@
-/*
+
 package com.abiha.springboot.bootcampproject.entities;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @IdClass(CartPK.class)
-public class Cart {
+public class Cart implements Serializable {
 
     private int quantity;
-    private boolean isWishlistItem;
+    private boolean isWishlistItem = false;
+
+   // private boolean outOfStock = false;
 
     @Id
-    @OneToMany
+    @ManyToOne
     private ProductVariation productVariation;
 
     @Id
     @OneToOne
-    private Customer customerUser;
+    private Customer customer;
 
 }
 
- */
+
 
 
 
