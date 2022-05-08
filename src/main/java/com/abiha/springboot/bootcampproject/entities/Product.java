@@ -26,15 +26,19 @@ public class Product implements Serializable {
 
     private String description;
 
+    @JsonIgnore
     private Boolean isCancellable= false;
 
+    @JsonIgnore
     private Boolean isReturnable=false;
 
     @NotNull
     private String brand;
 
+    @JsonIgnore
     private Boolean isActive=false;
 
+    @JsonIgnore
     private Boolean isDeleted=false;
 
    // private Boolean outOfStock = false;

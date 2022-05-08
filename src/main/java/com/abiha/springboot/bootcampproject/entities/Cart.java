@@ -18,14 +18,13 @@ public class Cart implements Serializable {
     private int quantity;
     private boolean isWishlistItem = false;
 
-   // private boolean outOfStock = false;
-
     @Id
     @ManyToOne
     private ProductVariation productVariation;
 
     @Id
-    @OneToOne
+   // @OneToOne
+    @ManyToOne
     private Customer customer;
 
 }

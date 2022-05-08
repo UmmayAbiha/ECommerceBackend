@@ -25,7 +25,6 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
                 mvcMatchers(HttpMethod.PATCH,"/activateUser/{id}","/deactivateUser/{id}").hasRole("ADMIN").
 
-                mvcMatchers("/logout").permitAll().
 
                 mvcMatchers(HttpMethod.GET,"/viewProfile").hasAnyRole("CUSTOMER","SELLER").
 
@@ -38,12 +37,22 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
                 mvcMatchers(HttpMethod.GET,"/customers","/sellers").hasRole("ADMIN").
 
-                // --> check krwana hai
-                mvcMatchers(HttpMethod.POST, "/cart/add-product/{id}").hasRole("CUSTOMER").
-                mvcMatchers(HttpMethod.GET,"/viewCart").permitAll().
-                mvcMatchers(HttpMethod.DELETE,"/deleteProduct/{id}","/emptyCart").permitAll().
-                mvcMatchers(HttpMethod.PATCH,"updateProduct/{id}").permitAll().
+                // --> cart
+                mvcMatchers(HttpMethod.POST, "/cart/{id}").hasRole("CUSTOMER").
+                mvcMatchers(HttpMethod.GET,"/cart/view").hasRole("CUSTOMER").
+                mvcMatchers(HttpMethod.DELETE,"/cart/product/{id}","/cart/emptyCart").hasRole("CUSTOMER").
+                mvcMatchers(HttpMethod.PATCH,"/cart/{id}").hasRole("CUSTOMER").
 
-                mvcMatchers("/confirm-account","/login","/resent-activation-link","/reset-password").permitAll().and().csrf().disable().logout().logoutSuccessUrl("/logout/successfully");
+                // --> order
+                mvcMatchers(HttpMethod.POST, "/order/all-products","/order/partial-products","/order/directly/{id}").hasRole("CUSTOMER").
+                mvcMatchers(HttpMethod.PATCH,"/order/cancel/{id}","/order/return/{id}").hasRole("CUSTOMER").
+                mvcMatchers(HttpMethod.GET,"/order/view/{id}","/order/view-list").hasRole("CUSTOMER").
+
+                mvcMatchers(HttpMethod.GET,"/order/view-all").hasRole("ADMIN").
+                mvcMatchers(HttpMethod.PATCH,"/order/change-order-status/{id}").hasRole("ADMIN").
+
+
+
+                mvcMatchers("/confirm-account","/logoutUser","/resent-activation-link","/reset-password").permitAll().and().csrf().disable().logout().logoutSuccessUrl("/logout/successfully");
     }
 }

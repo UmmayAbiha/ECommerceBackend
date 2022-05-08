@@ -19,30 +19,29 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
-    @PostMapping("/add-product/{id}")
+    @PostMapping("/{id}")
     public ResponseEntity<String> addCartProduct(@Valid @PathVariable Long id, @RequestParam int quantity){
          String message =cartService.addProduct(id,quantity);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-
-    @GetMapping("/viewCart")
+    @GetMapping("/view")
     public List<CartDto> viewCartDetails(){
         return cartService.viewingCart();
     }
 
-    @DeleteMapping("/deleteProduct/{id}")
+    @DeleteMapping("/product/{id}")
     public String deleteProductInCart(@PathVariable Long id){
         return cartService.deleteProduct(id);
     }
 
-    @PatchMapping("/updateProduct/{id}")
-    public ResponseEntity<String> updateProductInCart(@Valid @PathVariable Long id, @RequestParam int quan){
-        cartService.updateProduct(id,quan);
-        return new ResponseEntity<>("Product updated in cart!",HttpStatus.OK);
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> updateProductInCart(@Valid @PathVariable Long id, @RequestParam int quantity){
+        String message = cartService.updateProduct(id,quantity);
+        return new ResponseEntity<>(message,HttpStatus.OK);
     }
 
-    @DeleteMapping("/emptyCart")
+    @DeleteMapping("/empty")
     public String deleteCart(){
         return cartService.emptyCart();
     }

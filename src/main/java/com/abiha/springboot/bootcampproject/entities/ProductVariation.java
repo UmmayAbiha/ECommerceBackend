@@ -23,7 +23,7 @@ public class ProductVariation implements Serializable {
 
     private int quantityAvailable;
 
-    private float price;
+    private Double price;
 
     private Boolean isActive = true;
 

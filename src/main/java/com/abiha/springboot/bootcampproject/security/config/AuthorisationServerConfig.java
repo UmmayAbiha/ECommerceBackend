@@ -11,6 +11,8 @@ import org.springframework.security.oauth2.config.annotation.configurers.ClientD
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
@@ -58,17 +60,31 @@ public class AuthorisationServerConfig extends AuthorizationServerConfigurerAdap
                 .authenticationManager(authenticationManager)
                 .userDetailsService(userDetailsService);
     }
-//jdbc(dataSource)
+
+
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        clients.inMemory().withClient("backendapplication").
+        JdbcClientDetailsService jdbcClientDetailsService = new JdbcClientDetailsService(dataSource);
+            if (!jdbcClientDetailsService.listClientDetails().isEmpty()) {
+                jdbcClientDetailsService.removeClientDetails("backendapplication");
+            }
+            clients.jdbc(dataSource).withClient("backendapplication").
                 secret(passwordEncoder.encode("4444"))
                 .authorizedGrantTypes("password","refresh_token")
                 .refreshTokenValiditySeconds(30 * 24 * 3600)
-              //  .scopes("app")
+                .scopes("app")
                 .accessTokenValiditySeconds(7*24*60)
-                .scopes("read","write").resourceIds(RESOURCE_ID);
+                //.scopes("read","write")
+                .resourceIds(RESOURCE_ID);
+
     }
+
+
+    @Override
+    public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
+        security.allowFormAuthenticationForClients();
+    }
+
 
 
 }

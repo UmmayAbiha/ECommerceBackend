@@ -1,6 +1,7 @@
 package com.abiha.springboot.bootcampproject.exception;
 
 import com.abiha.springboot.bootcampproject.exception.UserNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +17,16 @@ import java.util.Date;
 
 @ControllerAdvice
 @RestController
+@Slf4j
 public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+
 
     @ExceptionHandler(Exception.class)
     public final ResponseEntity<Object> handleAllException(Exception ex , WebRequest request){
 
         ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
 
+        log.error("Exception occured",ex);
         return new ResponseEntity(exceptionResponse , HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
@@ -44,17 +48,8 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
         return new ResponseEntity(exceptionResponse , HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(ProductVariationNotFoundException.class)
-    public final ResponseEntity<Object> handleProductVariationNotFoundException(ProductVariationNotFoundException ex , WebRequest request){
-
-        ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
-
-        return new ResponseEntity(exceptionResponse , HttpStatus.NOT_FOUND);
-
-    }
-
-    @ExceptionHandler(ProductNotFoundException.class)
-    public final ResponseEntity<Object> handleProductNotFoundException(ProductNotFoundException ex , WebRequest request){
+    @ExceptionHandler(EntityNotFoundException.class)
+    public final ResponseEntity<Object> handleProductVariationNotFoundException(EntityNotFoundException ex , WebRequest request){
 
         ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
 
@@ -77,6 +72,22 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
 
         return new ResponseEntity(exceptionResponse , HttpStatus.NOT_FOUND);
 
+    }
+
+    @ExceptionHandler(CartIsEmptyException.class)
+    public final ResponseEntity<Object> handleCartIsEmptyException(CartIsEmptyException ex , WebRequest request){
+
+        ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
+
+        return new ResponseEntity(exceptionResponse , HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ResourceForbiddenException.class)
+    public final ResponseEntity<Object> handleResourceForbiddenException(ResourceForbiddenException ex , WebRequest request){
+
+        ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
+
+        return new ResponseEntity(exceptionResponse , HttpStatus.FORBIDDEN);
     }
 
 

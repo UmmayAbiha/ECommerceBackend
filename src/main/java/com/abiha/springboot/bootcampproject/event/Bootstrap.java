@@ -19,6 +19,9 @@ public class Bootstrap implements ApplicationRunner {
     UserRepo userRepo;
 
     @Autowired
+    AddressRepo addressRepo;
+
+    @Autowired
     RoleRepo roleRepo;
 
     @Autowired
@@ -115,6 +118,11 @@ public class Bootstrap implements ApplicationRunner {
             users.clear();
             roles.clear();
 
+            Address address1 = new Address("Lucknow", "UP", "India", "Victoria Street", "226003", "First Floor",user2);
+            addressRepo.save(address1);
+
+
+
 
             Role role3 = roleRepo.findByAuthority(Constants.ROLE_CUSTOMER);
             User user3 = new User("Ashtyn", ".", "Hill", "abihaumma@student.iul.ac.in");
@@ -134,6 +142,8 @@ public class Bootstrap implements ApplicationRunner {
             users.clear();
             roles.clear();
 
+            Address address2 = new Address("Delhi", "Delhi", "India", "Model Town", "110009", "Ground Floor",user3);
+            addressRepo.save(address2);
 
             //Sellers
             Role role4 = roleRepo.findByAuthority(Constants.ROLE_SELLER);
@@ -256,20 +266,20 @@ public class Bootstrap implements ApplicationRunner {
             // iphone 11 -->
             ProductVariation variation = new ProductVariation();
             variation.setProduct(product);
-            variation.setPrice(100000.0f);
+            variation.setPrice(100000.0);
             variation.setQuantityAvailable(5);
             productVariationRepo.save(variation);
 
             //apple variation->iphone11 pro
             ProductVariation productVariation = new ProductVariation();
             productVariation.setProduct(product1);
-            productVariation.setPrice(10000.0f);
+            productVariation.setPrice(10000.0);
             productVariation.setQuantityAvailable(10);
             productVariationRepo.save(productVariation);
 
             ProductVariation productVariation2 = new ProductVariation();
             productVariation2.setProduct(product1);
-            productVariation2.setPrice(112200.0f);
+            productVariation2.setPrice(112200.0);
             productVariation2.setQuantityAvailable(21);
             productVariationRepo.save(productVariation2);
         }

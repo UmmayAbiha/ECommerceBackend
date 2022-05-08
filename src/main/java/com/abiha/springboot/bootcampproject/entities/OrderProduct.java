@@ -22,13 +22,19 @@ public class OrderProduct {
     private Double price;
 
     @JsonIgnore
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "order_id",referencedColumnName = "id")
-    private Orders order;
+    private Orders orders;
 
+   // @ManyToOne
     @OneToOne
     @JoinColumn(name ="product_variation_id",referencedColumnName = "id", nullable= false)
     private ProductVariation productVariation;
+
+    @OneToOne(mappedBy = "orderProduct")
+    private OrderStatus orderStatus;
+
+
 }
 
 

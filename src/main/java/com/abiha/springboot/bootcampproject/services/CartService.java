@@ -5,10 +5,7 @@ import com.abiha.springboot.bootcampproject.entities.Cart;
 import com.abiha.springboot.bootcampproject.entities.Product;
 import com.abiha.springboot.bootcampproject.entities.ProductVariation;
 import com.abiha.springboot.bootcampproject.entities.User;
-import com.abiha.springboot.bootcampproject.exception.ProductNotFoundException;
-import com.abiha.springboot.bootcampproject.exception.ProductOutOfStockException;
-import com.abiha.springboot.bootcampproject.exception.ProductVariationNotFoundException;
-import com.abiha.springboot.bootcampproject.exception.UserNotFoundException;
+import com.abiha.springboot.bootcampproject.exception.*;
 import com.abiha.springboot.bootcampproject.repos.CartRepo;
 import com.abiha.springboot.bootcampproject.repos.ProductVariationRepo;
 import com.abiha.springboot.bootcampproject.repos.UserRepo;
@@ -16,7 +13,6 @@ import com.abiha.springboot.bootcampproject.utils.SecurityContextHolderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +28,23 @@ public class CartService {
     @Autowired
     ProductVariationRepo productVariationRepo;
 
+    // aval quan and req ka condition check krna hai ya nhi!!!
+    public void validateProductVariation(StringBuilder str,ProductVariation productVariation, int quantity){
+        if(!productVariation.getIsActive()){
+            str.append("Product Variation not active\n");
+        }
+        if(productVariation.getProduct().getIsDeleted()){
+            str.append("Product is a deleted product!\n");
+        }
+        if(productVariation.getQuantityAvailable()==0){
+            str.append("Available quantity is zero, product is out of stock!");
+        }
+        if(productVariation.getQuantityAvailable()<quantity)
+        {
+            str.append("Available quantity less than the requested quantity!");
+        }
+    }
+
 
     public String addProduct(Long productVarId, int quantity) {
 
@@ -45,8 +58,9 @@ public class CartService {
             Cart cart = new Cart();
             ProductVariation productVariation = productVariationRepo.findById(productVarId).orElse(null);
             if (productVariation!=null) {
-                if (productVariation.getIsActive() && quantity>0 && !productVariation.getProduct().getIsDeleted()) {
-                    Product product = productVariation.getProduct();
+                if (productVariation.getIsActive() && quantity>0 && !productVariation.getProduct().getIsDeleted()
+                        && productVariation.getQuantityAvailable()>0 && productVariation.getQuantityAvailable() >= quantity) {
+
                     cart.setCustomer(user.getCustomer());
                     cart.setQuantity(quantity);
                     cart.setProductVariation(productVariation);
@@ -54,22 +68,55 @@ public class CartService {
                 }
                 else{
                     StringBuilder str = new StringBuilder();
-                    if(!productVariation.getIsActive()){
-                        str.append("Product Variation not active\n");
-                    }
+                    validateProductVariation(str,productVariation,quantity);
                     if(quantity<=0){
                         str.append("Quantity should be greater than zero!\n");
                     }
-                    if(productVariation.getProduct().getIsDeleted()){
-                        str.append("Deleted Product!");
-                    }
-                    throw new ValidationException(String.valueOf(str));
+                    throw new ValidationFailedException(String.valueOf(str));
                 }
             } else {
-                throw new ProductVariationNotFoundException("Product Variation Not Found");
+                throw new EntityNotFoundException("Product Variation Not Found");
             }
         }
         return "Product added to cart";
+    }
+
+    public String updateProduct(Long id, int quantity) {
+        String email = SecurityContextHolderUtil.getCurrentUserEmail();
+        User user = userRepo.findByEmail(email);
+        if (user == null) {
+            throw new UserNotFoundException("User Not Found");
+        } else {
+            ProductVariation productVariation = productVariationRepo.findById(id).orElse(null);
+            //
+            Cart cart = cartRepo.findByCustomerVarIds(user.getId(),id);
+            if (productVariation != null) {
+                if (productVariation.getIsActive() && quantity>=0 &&!productVariation.getProduct().getIsDeleted() &&
+                        productVariation.getQuantityAvailable()>0 && productVariation.getQuantityAvailable() >= quantity && cart!=null) {
+                    if (quantity == 0) {
+                        cartRepo.deleteByCustomerVarIds(user.getId(),id);
+                        return "Quantity is zero,Product removed from cart!";
+                    }
+                    cart.setQuantity(quantity);
+                    cartRepo.save(cart);
+                }
+                else {
+                    StringBuilder str = new StringBuilder();
+                    validateProductVariation(str,productVariation,quantity);
+                    if(quantity<0){
+                        str.append("Quantity should be greater than or equal to zero!\n");
+                    }
+                    if (cart == null) {
+                        str.append("Product doesn't exists in user's cart!");
+                    }
+                    throw new ValidationFailedException(String.valueOf(str));
+                }
+            }
+            else{
+                throw new EntityNotFoundException("Product Variation Not Found");
+            }
+        }
+        return "Cart updated successfully!";
     }
 
 
@@ -80,21 +127,17 @@ public class CartService {
         if(user == null){
             throw new UserNotFoundException("User Not Found");
         }
-        List<Cart> cartList = cartRepo.findAllProducts();
+//        List<Cart> cartList = cartRepo.findAllByCustomerId(user.getId());
+        List<Cart> cartList = cartRepo.findAllByCustomer(user.getCustomer());
         List<CartDto> list = new ArrayList<>();
-        CartDto cartDto = new CartDto();
         for (Cart cart:cartList ){
-            if(cart.getProductVariation().getQuantityAvailable()==0)
-                cartDto.setOutOfStock(true);
-            else {
-                cartDto.setOutOfStock(false);
-            }
+            CartDto cartDto = new CartDto();
+            cartDto.setOutOfStock(cart.getProductVariation().getQuantityAvailable() == 0);
             cartDto.setCart(cart);
             list.add(cartDto);
         }
         return list;
     }
-
 
     public String deleteProduct(Long id) {
 
@@ -106,60 +149,16 @@ public class CartService {
         } else {
             ProductVariation productVariation = productVariationRepo.findById(id).orElse(null);
             if (productVariation != null) {
-                if (cartRepo.findByProductVariationId(id)!=null) {
-                    cartRepo.deleteByProductVariationId(id);
+                if (cartRepo.findByCustomerVarIds(user.getId(),id)!=null) {
+                    cartRepo.deleteByCustomerVarIds(user.getId(), id);
                     return "Product deleted from cart!";
                 } else
-                    throw new ProductNotFoundException("Product for this id is not found");
+                    throw new EntityNotFoundException("Product for this id is not found");
             } else {
-                throw new ProductVariationNotFoundException("Product variation not found!");
+                throw new EntityNotFoundException("Product variation not found!");
             }
         }
     }
-
-
-
-    // update query??
-    //org.springframework.orm.jpa.JpaSystemException: No part of a composite identifier may be null
-    //org.hibernate.HibernateException: No part of a composite identifier may be null
-    public void updateProduct(Long id, int quan) {
-        String email = SecurityContextHolderUtil.getCurrentUserEmail();
-        User user = userRepo.findByEmail(email);
-        if (user == null) {
-            throw new UserNotFoundException("User Not Found");
-        } else {
-            Cart cart = new Cart();
-            ProductVariation productVariation = productVariationRepo.findById(id).orElse(null);
-            if (productVariation != null) {
-                if (productVariation.getIsActive() && !productVariation.getProduct().getIsDeleted() && quan >= 0 && cartRepo.findByProductVariationId(id)!=null) {
-                    cart.setQuantity(quan);
-                    // yaha pe baaki fields ka kya??
-                    //hme toh sirf ye update krna tha
-                    cartRepo.save(cart);
-                } else {
-                    StringBuilder str = new StringBuilder();
-                    if (!productVariation.getIsActive()) {
-                        str.append("Product Variation not active\n");
-                    }
-                    if (quan == 0) {
-                        str.append("Product removed from cart!\n");
-                        cartRepo.deleteByProductVariationId(id);
-                        //
-                    }
-                    if (productVariation.getProduct().getIsDeleted()) {
-                        str.append("Product is a deleted product!");
-                    }
-                    if(cartRepo.findByProductVariationId(id) == null){
-                        str.append("Product doesn't exists in user's cart!");
-                    }
-                    throw new ValidationException(String.valueOf(str));
-                }
-            } else {
-                throw new ProductVariationNotFoundException("Product Variation Not Found");
-            }
-        }
-    }
-
 
     public String emptyCart(){
         String email = SecurityContextHolderUtil.getCurrentUserEmail();
