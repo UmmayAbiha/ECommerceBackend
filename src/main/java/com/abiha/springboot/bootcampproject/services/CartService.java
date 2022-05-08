@@ -28,7 +28,6 @@ public class CartService {
     @Autowired
     ProductVariationRepo productVariationRepo;
 
-    // aval quan and req ka condition check krna hai ya nhi!!!
     public void validateProductVariation(StringBuilder str,ProductVariation productVariation, int quantity){
         if(!productVariation.getIsActive()){
             str.append("Product Variation not active\n");
@@ -127,7 +126,6 @@ public class CartService {
         if(user == null){
             throw new UserNotFoundException("User Not Found");
         }
-//        List<Cart> cartList = cartRepo.findAllByCustomerId(user.getId());
         List<Cart> cartList = cartRepo.findAllByCustomer(user.getCustomer());
         List<CartDto> list = new ArrayList<>();
         for (Cart cart:cartList ){
