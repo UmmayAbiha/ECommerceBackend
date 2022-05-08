@@ -51,6 +51,9 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 mvcMatchers(HttpMethod.GET,"/order/view-all").hasRole("ADMIN").
                 mvcMatchers(HttpMethod.PATCH,"/order/change-order-status/{id}").hasRole("ADMIN").
 
+                mvcMatchers(HttpMethod.GET,"/order/view-product-list").hasRole("SELLER").
+                mvcMatchers(HttpMethod.PATCH,"/order/change-status/{id}").hasRole("SELLER").
+
 
 
                 mvcMatchers("/confirm-account","/logoutUser","/resent-activation-link","/reset-password").permitAll().and().csrf().disable().logout().logoutSuccessUrl("/logout/successfully");

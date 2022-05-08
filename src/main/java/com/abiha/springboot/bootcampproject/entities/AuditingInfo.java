@@ -24,4 +24,6 @@ public abstract class AuditingInfo {
     @UpdateTimestamp
     private Date updatedAt;
 
+    private String createdBy;
+
 }

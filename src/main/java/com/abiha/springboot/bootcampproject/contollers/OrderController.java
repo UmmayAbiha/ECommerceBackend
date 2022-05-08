@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
@@ -57,12 +56,21 @@ public class OrderController {
     }
 
     @GetMapping("/view-list")
-    public List<Orders> list(){
-        return orderService.list();
+    public List<Orders> list(@RequestParam(value = "max",required = false,defaultValue = "2") int max,
+                             @RequestParam(value = "offset",required = false,defaultValue = "0") int page,
+                             @RequestParam(value = "sort",required = false,defaultValue = "id") String sort ){
+        return orderService.list(max,page,sort);
     }
 
 
     // seller APIs
+    @GetMapping("/view-product-list")
+    public List<Orders> listProduct(@RequestParam(value = "max",required = false,defaultValue = "2") int max,
+                                    @RequestParam(value = "offset",required = false,defaultValue = "0") int page,
+                                    @RequestParam(value = "sort",required = false,defaultValue = "id") String sort ){
+        return orderService.listSeller(max,page,sort);
+    }
+
     @PatchMapping("/change-status/{id}")
     public ResponseEntity<String> changeStatus(@Valid @PathVariable Long id, @RequestParam Status fromStatus, @RequestParam Status toStatus){
         String message = orderService.changeStatus(id,fromStatus,toStatus);
@@ -72,8 +80,10 @@ public class OrderController {
 
     // admin APIs
     @GetMapping("/view-all")
-    public List<Orders> listAll(){
-        return orderService.listAll();
+    public List<Orders> listAll(@RequestParam(value = "max",required = false,defaultValue = "2") int max,
+                                @RequestParam(value = "offset",required = false,defaultValue = "0") int page,
+                                @RequestParam(value = "sort",required = false,defaultValue = "id") String sort ){
+        return orderService.listAll(max, page, sort);
     }
 
 

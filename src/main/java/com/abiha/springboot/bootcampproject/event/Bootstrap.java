@@ -282,6 +282,14 @@ public class Bootstrap implements ApplicationRunner {
             productVariation2.setPrice(112200.0);
             productVariation2.setQuantityAvailable(21);
             productVariationRepo.save(productVariation2);
+
+            //
+            ProductVariation productVariation3 = new ProductVariation();
+            productVariation3.setProduct(product2);
+            productVariation3.setPrice(1100.0);
+            productVariation3.setQuantityAvailable(18);
+            productVariationRepo.save(productVariation3);
+
         }
     }
 }

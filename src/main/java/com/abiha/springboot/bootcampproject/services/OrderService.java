@@ -141,6 +141,7 @@ public class OrderService {
             orders.setOrderProducts(orderProductList);
             orders.setAmountPaid(totalAmount);
 
+            // updated
             orderRepo.saveAndFlush(orders);
             List<OrderStatus> orderStatusList = orderStatusService.saveAll(orderProductList);
             orderStatusRepo.saveAll(orderStatusList);
@@ -306,7 +307,7 @@ public class OrderService {
     }
 
     // for customer
-    public List<Orders> list() {
+    public List<Orders> list(int max, int offset, String sort) {
         String email = SecurityContextHolderUtil.getCurrentUserEmail();
         User user = userRepo.findByEmail(email);
 
@@ -314,30 +315,22 @@ public class OrderService {
             throw new UserNotFoundException("User Not Found");
         }
         //
-        List<Orders> orderList = orderRepo.findAllByCustomer(user.getCustomer(), PageRequest.of(0, 10, Sort.by("id")));
+        List<Orders> orderList = orderRepo.findAllByCustomer(user.getCustomer(), PageRequest.of(offset, max, Sort.by(sort).descending()));
         return orderList;
     }
 
 
-    /*
-    public List<Orders> listSeller(){
+    // seller api
+    public List<Orders> listSeller(int max, int offset, String sort){
         String email = SecurityContextHolderUtil.getCurrentUserEmail();
         User user = userRepo.findByEmail(email);
 
         if (user == null) {
             throw new UserNotFoundException("User Not Found");
         }
-        Orders orders = o
-        return orderRepo.findAll(PageRequest.of(0, 10, Sort.by("id"))).getContent();
+        return orderRepo.findAllBySeller(user.getId(),PageRequest.of(offset, max, Sort.by(sort).descending()));
     }
 
-     */
-
-
-
-
-
-    // seller api
     public String changeStatus(Long id,Status fromStatus, Status toStatus) {
         String email = SecurityContextHolderUtil.getCurrentUserEmail();
         User user = userRepo.findByEmail(email);
@@ -391,14 +384,14 @@ public class OrderService {
     }
 
 
-    public List<Orders> listAll(){
+    public List<Orders> listAll(int max, int offset, String sort){
         String email = SecurityContextHolderUtil.getCurrentUserEmail();
         User user = userRepo.findByEmail(email);
 
         if (user == null) {
             throw new UserNotFoundException("User Not Found");
         }
-        return orderRepo.findAll(PageRequest.of(0, 10, Sort.by("id"))).getContent();
+        return orderRepo.findAll(PageRequest.of(offset, max, Sort.by(sort).descending())).getContent();
     }
 
 
