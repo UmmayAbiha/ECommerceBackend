@@ -91,6 +91,9 @@ public class OrderService {
                 }
                 orders.setOrderProducts(orderProductList);
                 orders.setAmountPaid(totalAmount);
+
+                orders.setCreatedBy(email);
+
                 orderRepo.saveAndFlush(orders);
                 List<OrderStatus> orderStatusList = orderStatusService.saveAll(orderProductList);
                 orderStatusRepo.saveAll(orderStatusList);
@@ -142,6 +145,7 @@ public class OrderService {
             orders.setAmountPaid(totalAmount);
 
             // updated
+            orders.setCreatedBy(email);
             orderRepo.saveAndFlush(orders);
             List<OrderStatus> orderStatusList = orderStatusService.saveAll(orderProductList);
             orderStatusRepo.saveAll(orderStatusList);
@@ -179,6 +183,7 @@ public class OrderService {
                     orderProduct.setOrders(orders);
                     orders.setOrderProducts(Collections.singletonList(orderProduct));
 
+                    orders.setCreatedBy(email);
                     orderRepo.saveAndFlush(orders);
 
                     List<OrderStatus> orderStatus = orderStatusService.saveAll(Collections.singletonList(orderProduct));
@@ -234,9 +239,10 @@ public class OrderService {
                         }
                         orderStatus.setToStatus(Status.CANCELLED);
 
+                        orderStatus.setUpdatedBy(email);
                         orderStatusRepo.save(orderStatus);
                     } else {
-                        throw new ValidationFailedException("Order isn't placed yet!");
+                        throw new ValidationFailedException("Order cannot be cancelled!");
                     }
 
                 } else {
@@ -273,9 +279,10 @@ public class OrderService {
                         orderStatus.setFromStatus(orderStatus.getToStatus());
                         orderStatus.setToStatus(Status.RETURN_REQUESTED);
 
+                        orderStatus.setUpdatedBy(email);
                         orderStatusRepo.save(orderStatus);
                     } else {
-                        throw new ValidationFailedException("Order isn't delivered yet!");
+                        throw new ValidationFailedException("Order can't be returned!");
                     }
 
                 } else {
@@ -346,6 +353,7 @@ public class OrderService {
                     orderStatus.setToStatus(toStatus);
                     orderStatus.setFromStatus(fromStatus);
 
+                    orderStatus.setUpdatedBy(email);
                     orderStatusRepo.save(orderStatus);
                 } else {
                     throw new ValidationFailedException("Only the seller of the product have rights to change status!");
@@ -374,6 +382,7 @@ public class OrderService {
                     orderStatus.setToStatus(toStatus);
                     orderStatus.setFromStatus(fromStatus);
 
+                    orderStatus.setUpdatedBy(email);
                     orderStatusRepo.save(orderStatus);
                 }
             } else {

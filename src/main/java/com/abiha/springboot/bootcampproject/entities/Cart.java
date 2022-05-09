@@ -13,7 +13,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @IdClass(CartPK.class)
-public class Cart implements Serializable {
+public class Cart extends AuditingInfo implements Serializable{
 
     private int quantity;
     private boolean isWishlistItem = false;
@@ -23,7 +23,6 @@ public class Cart implements Serializable {
     private ProductVariation productVariation;
 
     @Id
-   // @OneToOne
     @ManyToOne
     private Customer customer;
 

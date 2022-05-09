@@ -26,7 +26,6 @@ public class OrderProduct {
     @JoinColumn(name = "order_id",referencedColumnName = "id")
     private Orders orders;
 
-   // @ManyToOne
     @OneToOne
     @JoinColumn(name ="product_variation_id",referencedColumnName = "id", nullable= false)
     private ProductVariation productVariation;

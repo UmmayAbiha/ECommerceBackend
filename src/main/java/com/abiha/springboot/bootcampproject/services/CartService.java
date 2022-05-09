@@ -63,6 +63,8 @@ public class CartService {
                     cart.setCustomer(user.getCustomer());
                     cart.setQuantity(quantity);
                     cart.setProductVariation(productVariation);
+
+                    cart.setCreatedBy(email);
                     cartRepo.save(cart);
                 }
                 else{
@@ -97,6 +99,7 @@ public class CartService {
                         return "Quantity is zero,Product removed from cart!";
                     }
                     cart.setQuantity(quantity);
+                    cart.setUpdatedBy(email);
                     cartRepo.save(cart);
                 }
                 else {
@@ -128,13 +131,18 @@ public class CartService {
         }
         List<Cart> cartList = cartRepo.findAllByCustomer(user.getCustomer());
         List<CartDto> list = new ArrayList<>();
-        for (Cart cart:cartList ){
-            CartDto cartDto = new CartDto();
-            cartDto.setOutOfStock(cart.getProductVariation().getQuantityAvailable() == 0);
-            cartDto.setCart(cart);
-            list.add(cartDto);
+        if(!cartList.isEmpty()) {
+            for (Cart cart : cartList) {
+                CartDto cartDto = new CartDto();
+                cartDto.setOutOfStock(cart.getProductVariation().getQuantityAvailable() == 0);
+                cartDto.setCart(cart);
+                list.add(cartDto);
+            }
+            return list;
         }
-        return list;
+        else {
+            throw new CartIsEmptyException("No product added in the cart!");
+        }
     }
 
     public String deleteProduct(Long id) {
